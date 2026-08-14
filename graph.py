@@ -10,7 +10,7 @@ from prompts import deconstrution_prompt, mission_briefing_prompt, asset_builder
 load_dotenv()
 
 llm = ChatGoogleGenerativeAI(
-    model = "Gemini-3.1-Flash-Lite", 
+    model = "gemini-3.6-flash", 
     temperature = 0.7, 
     google_api_key=os.getenv("GOOGLE_API_KEY")
 )
