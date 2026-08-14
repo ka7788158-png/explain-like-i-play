@@ -22,7 +22,7 @@ def node_breakdown(state: DictionaryState):
 
     response = chain.invoke({
         "engineering_topic" : state["engineering_topic"], 
-        "video game": state["video_game"]
+        "video_game": state["video_game"]
     })
 
     # Update the state with the exact lists
