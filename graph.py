@@ -10,12 +10,12 @@ from prompts import deconstrution_prompt, mission_briefing_prompt, asset_builder
 load_dotenv()
 
 llm = ChatGoogleGenerativeAI(
-    model = "gemini-1.5-flash", 
+    model = "Gemini 3.1 Flash Lite", 
     temperature = 0.7, 
     google_api_key=os.getenv("GOOGLE_API_KEY")
 )
 
-def node_brakdown(state: DictionaryState):
+def node_breakdown(state: DictionaryState):
     """Node 1: Breaks down the topic and extracts game mechanics."""
     structured_llm = llm.with_structured_output(DeconstructionOutput)
     chain = deconstrution_prompt | structured_llm
@@ -67,10 +67,12 @@ def node_interactive_assets(state: DictionaryState):
 # .model_dump() -> built in method that transform a pydantic class instance into a python dictionary. 
 workflow = StateGraph(DictionaryState)
 
-workflow.add_node("node_brakdown", node_brakdown)
+# 1. ADD THE NODES FIRST (If these are missing, it throws your exact error!)
+workflow.add_node("node_breakdown", node_breakdown)
 workflow.add_node("node_analogy_engine", node_analogy_engine)
 workflow.add_node("node_interactive_assets", node_interactive_assets)
 
+# 2. THEN CONNECT THE EDGES
 workflow.add_edge(START, "node_breakdown")
 workflow.add_edge("node_breakdown", "node_analogy_engine")
 workflow.add_edge("node_analogy_engine", "node_interactive_assets")
