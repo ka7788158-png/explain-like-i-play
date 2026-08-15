@@ -77,7 +77,6 @@ def node_analogy_engine(state: DictionaryState):
     """Node 2: Generates the NPC Mission Briefing."""
     chain = mission_briefing_prompt | llm
     
-    # BULLETPROOF FIX: We use .get() so a KeyError is literally impossible
     core_principles = state.get("core_principles", ["General Concept"])
     game_mechanics = state.get("game_mechanics", ["General Mechanic"])
     
@@ -88,7 +87,18 @@ def node_analogy_engine(state: DictionaryState):
         "game_mechanics": ", ".join(game_mechanics)
     })
     
-    return {"narrative_explanation": response.content}
+    # EXTRACT CLEAN TEXT FROM GEMINI'S MESSAGE BLOCK
+    content = response.content
+    
+    # If Gemini returns a list with metadata, extract just the text string
+    if isinstance(content, list):
+        text_parts = [block.get("text", "") for block in content if isinstance(block, dict) and "text" in block]
+        final_text = "\n".join(text_parts)
+    else:
+        # If it's already a standard string, use it directly
+        final_text = str(content)
+    
+    return {"narrative_explanation": final_text.strip()}
 
 def node_interactive_assets(state: DictionaryState):
     """Node 3: Compiles the structured dictionary and quiz."""
