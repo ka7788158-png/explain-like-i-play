@@ -1,6 +1,8 @@
 import streamlit as st
 import pandas as pd
 from graph import app_engine, llm
+import base64
+from langchain_core.messages import HumanMessage
 from utils import GAMER_THEME_CSS, create_audio_briefing, generate_pdf_guide
 
 # 1. Page Configuration (Must be the first Streamlit command)
@@ -72,7 +74,7 @@ if submit_btn:
         # Generate the audio file immediately after the graph completes
         st.session_state.audio_bytes = create_audio_briefing(st.session_state.graph_state["narrative_explanation"])
 
-        
+
 # 6. Main HUD Display
 if st.session_state.graph_state:
     state = st.session_state.graph_state
