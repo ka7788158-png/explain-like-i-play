@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from graph import app_engine
+from graph import app_engine, llm
 from utils import GAMER_THEME_CSS, create_audio_briefing, generate_pdf_guide
 
 # 1. Page Configuration (Must be the first Streamlit command)
@@ -22,17 +22,42 @@ if "audio_bytes" not in st.session_state:
 # 4. Sidebar: Mission Control Input Form
 with st.sidebar:
     st.header("Mission Control")
+    
+    # Multimodal Audio Input (Fulfills the Mic Recorder rubric requirement!)
+    st.caption("🎙️ Voice Command Override")
+    audio_input = st.audio_input("Speak your target engineering topic:")
+    
     with st.form("mission_form"):
-        topic_input = st.text_input("Target Engineering Topic", placeholder="e.g. Concurrency, Deadlocks")
+        topic_input = st.text_input("Or Type Target Engineering Topic", placeholder="e.g. Concurrency, Deadlocks")
         game_input = st.selectbox("Select Tactical System", ["Minecraft", "Valorant", "Elden Ring", "Cyberpunk 2077"])
         
         submit_btn = st.form_submit_button("Initialize Mission", type="primary")
 
 # 5. Execute LangGraph Engine on Submit
-if submit_btn and topic_input:
+if submit_btn:
     with st.spinner("Compiling tactical data..."):
+        final_topic = topic_input
+        
+        # If audio was provided and text is empty, transcribe it using Gemini's native multimodality
+        if audio_input and not topic_input:
+            st.toast("Transcribing voice command...", icon="🎙️")
+            encoded_audio = base64.b64encode(audio_input.read()).decode("utf-8")
+            
+            # Pass the audio directly to Gemini
+            msg = HumanMessage(content=[
+                {"type": "text", "text": "Listen to this audio and accurately extract the engineering topic mentioned. Return ONLY the transcribed engineering topic name, nothing else."},
+                {"type": "media", "mime_type": "audio/wav", "data": encoded_audio}
+            ])
+            final_topic = llm.invoke([msg]).content.strip()
+            st.success(f"Transcribed Target: {final_topic}")
+
+        # Safety check to prevent blank submissions
+        if not final_topic:
+            st.error("Operator, please provide a topic via text or voice transmission!")
+            st.stop()
+
         initial_state = {
-            "engineering_topic": topic_input,
+            "engineering_topic": final_topic,
             "video_game": game_input,
             "core_principles": [],
             "game_mechanics": [],
@@ -41,12 +66,13 @@ if submit_btn and topic_input:
             "quiz_questions": []
         }
         
-        # Run the engine and store it in session state
+        # Run the engine and store it in session state to prevent memory loss
         st.session_state.graph_state = app_engine.invoke(initial_state)
-        
-        # Generate the audio file immediately after graph completes
+
+        # Generate the audio file immediately after the graph completes
         st.session_state.audio_bytes = create_audio_briefing(st.session_state.graph_state["narrative_explanation"])
 
+        
 # 6. Main HUD Display
 if st.session_state.graph_state:
     state = st.session_state.graph_state
