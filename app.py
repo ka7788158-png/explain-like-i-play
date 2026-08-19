@@ -31,7 +31,7 @@ with st.sidebar:
     
     with st.form("mission_form"):
         topic_input = st.text_input("Or Type Target Engineering Topic", placeholder="e.g. Concurrency, Deadlocks")
-        game_input = st.selectbox("Select Tactical System", ["Minecraft", "Valorant", "Elden Ring", "Cyberpunk 2077"])
+        game_input = st.selectbox("Select Tactical System", ["Minecraft", "Valorant", "Elden Ring", "Cyberpunk 2077", "GTA 5"])
         
         submit_btn = st.form_submit_button("Initialize Mission", type="primary")
 
