@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 from graph import app_engine, llm
 import base64
-from langchain_core.messages import HumanMessage
+from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
 from utils import GAMER_THEME_CSS, create_audio_briefing, generate_pdf_guide
 
 # 1. Page Configuration (Must be the first Streamlit command)
@@ -20,6 +20,8 @@ if "graph_state" not in st.session_state:
     st.session_state.graph_state = None
 if "audio_bytes" not in st.session_state:
     st.session_state.audio_bytes = None
+if "chat_history" not in st.session_state:
+    st.session_state.chat_history = []
 
 # 4. Sidebar: Mission Control Input Form
 with st.sidebar:
@@ -139,3 +141,55 @@ else:
     # Default waiting screen
     st.title("Awaiting Orders...")
     st.info("Enter an engineering topic and select a game in the sidebar to begin.")
+
+# ---------------------------------------------------------
+# NEW FEATURE: TACTICAL COMMS CHANNEL (Context-Aware Chat)
+# ---------------------------------------------------------
+st.divider()
+st.subheader("Tactical Comms Channel")
+st.caption("Interrogate the AI Commander about the active mission intel.")
+
+# 1. Render the existing chat history on the screen
+for msg in st.session_state.chat_history:
+    role = "user" if msg["role"] == "user" else "assistant"
+    with st.chat_message(role):
+        st.markdown(msg["content"])
+        
+# 2. Capture new user questions
+if chat_input := st.chat_input("Ask command for clarification..."):
+    
+    # Immediately display the user's question in the UI and save to memory
+    with st.chat_message("user"):
+        st.markdown(chat_input)
+    st.session_state.chat_history.append({"role": "user", "content": chat_input})
+    
+    # 3. Build the Ultimate Context Prompt for Gemini
+    system_context = f"""
+    You are a tactical mission commander. The user is an operative deployed in the field.
+    Answer their questions strictly based on the following Mission Intel:
+    
+    Engineering Topic: {state['engineering_topic']}
+    Tactical System (Game): {state['video_game']}
+    Mission Briefing: {state['narrative_explanation']}
+    Concept Dictionary: {state['dictionary_mapping']}
+    
+    Keep your answers concise, tactical, and strictly within the game's analogy.
+    If they ask a general question, answer it naturally but maintain your gritty Commander persona.
+    """
+    
+    # Package the system context and the chat history for the LLM
+    messages = [SystemMessage(content=system_context)]
+    for m in st.session_state.chat_history:
+        if m["role"] == "user":
+            messages.append(HumanMessage(content=m["content"]))
+        else:
+            messages.append(AIMessage(content=m["content"]))
+            
+    # 4. Trigger Gemini and stream the response back
+    with st.chat_message("assistant"):
+        with st.spinner("Command is analyzing..."):
+            response = llm.invoke(messages).content
+            st.markdown(response)
+            
+    # 5. Save the AI's response to memory
+    st.session_state.chat_history.append({"role": "assistant", "content": response})
