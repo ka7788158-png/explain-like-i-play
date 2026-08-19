@@ -188,8 +188,18 @@ if chat_input := st.chat_input("Ask command for clarification..."):
     # 4. Trigger Gemini and stream the response back
     with st.chat_message("assistant"):
         with st.spinner("Command is analyzing..."):
-            response = llm.invoke(messages).content
-            st.markdown(response)
+            raw_response = llm.invoke(messages).content
             
-    # 5. Save the AI's response to memory
-    st.session_state.chat_history.append({"role": "assistant", "content": response})
+            # EXTRACT CLEAN TEXT FROM GEMINI'S MESSAGE BLOCK
+            if isinstance(raw_response, list):
+                text_parts = [block.get("text", "") for block in raw_response if isinstance(block, dict) and "text" in block]
+                final_response = "\n".join(text_parts)
+            else:
+                final_response = str(raw_response)
+            
+            st.markdown(final_response)
+            
+    # 5. Save the clean AI response to memory
+    st.session_state.chat_history.append({"role": "assistant", "content": final_response})
+        
+    
