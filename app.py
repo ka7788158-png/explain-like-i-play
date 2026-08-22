@@ -71,11 +71,31 @@ if submit_btn:
         }
         
         # Run the engine and store it in session state to prevent memory loss
-        st.session_state.graph_state = app_engine.invoke(initial_state)
+        # st.session_state.graph_state = app_engine.invoke(initial_state)
 
-        # Generate the audio file immediately after the graph completes
-        st.session_state.audio_bytes = create_audio_briefing(st.session_state.graph_state["narrative_explanation"])
+        # # Generate the audio file immediately after the graph completes
+        # st.session_state.audio_bytes = create_audio_briefing(st.session_state.graph_state["narrative_explanation"])
 
+        with st.status("Initializing Mission Protocol ... ", expand = True) as status: 
+            status.write("📡 Uplink established. Transmitting parameters to AI engine...")
+
+            final_state = None
+
+            # stream the graph execution Node by Node
+            for output in app_engine.stream(initial_state):
+                for node_name, state_update in output.items():
+                    # Dynamically print which AI node is currently running
+                    formatted_node = node_name.replace("_", " ").title()
+                    status.write(f"⚙️ Executing module: {formatted_node}...")
+                    final_state = state_update
+
+            # Save the final compiled state to memory
+            st.session_state.graph_state = final_state
+            
+            status.write("🔊 Synthesizing Commander's audio transmission...")
+            st.session_state.audio_bytes = create_audio_briefing(st.session_state.graph_state["narrative_explanation"])
+            
+            status.update(label="Mission Data Compiled Successfully!", state="complete", expanded=False)
 
 # 6. Main HUD Display
 if st.session_state.graph_state:
@@ -99,7 +119,7 @@ if st.session_state.graph_state:
     boss_image_url = generate_boss_image_url(state["engineering_topic"], state["video_game"])
     
     # Display it with Streamlit
-    st.image(boss_image_url, caption=f"Threat Entity: {state['engineering_topic'].upper()}", use_column_width=True)
+    st.image(boss_image_url, caption=f"Threat Entity: {state['engineering_topic'].upper()}", use_container_width=True)
     
     st.divider()
     
@@ -214,4 +234,4 @@ if chat_input := st.chat_input("Ask command for clarification..."):
     # 5. Save the clean AI response to memory
     st.session_state.chat_history.append({"role": "assistant", "content": final_response})
         
-    
+  
