@@ -90,6 +90,18 @@ if st.session_state.graph_state:
     col3.metric(label="Threat Level", value="HIGH", delta="-Engage Carefully", delta_color="inverse")
     
     st.divider()
+
+    # NEW FEATURE: BOSS THREAT PROFILE (Pollinations.ai)
+    st.subheader("⚠️ Target Identity Confirmed")
+    
+    # Call our free URL generator
+    from utils import generate_boss_image_url
+    boss_image_url = generate_boss_image_url(state["engineering_topic"], state["video_game"])
+    
+    # Display it with Streamlit
+    st.image(boss_image_url, caption=f"Threat Entity: {state['engineering_topic'].upper()}", use_column_width=True)
+    
+    st.divider()
     
     # Audio Player & Briefing Text
     st.subheader("Incoming Transmission...")

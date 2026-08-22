@@ -307,3 +307,20 @@ def generate_pdf_guide(topic: str, game: str, narrative: str, dictionary: list) 
         
     pdf_out.seek(0)
     return pdf_out
+
+import urllib.parse
+
+def generate_boss_image_url(topic: str, game: str) -> str:
+    """
+    Generates a free, no-API-key image URL using Pollinations.ai.
+    """
+    # 1. Engineer the perfect boss prompt
+    prompt = f"Concept art of a boss monster representing the engineering concept of '{topic}'. Designed strictly in the visual art style of the video game '{game}'. Epic lighting, UI portrait, highly detailed, dark background."
+    
+    # 2. URL-encode the prompt so it's safe for a web link
+    safe_prompt = urllib.parse.quote(prompt)
+    
+    # 3. Add a seed or width/height parameters if we want, but the default is perfect
+    image_url = f"https://image.pollinations.ai/prompt/{safe_prompt}?width=800&height=400&nologo=true"
+    
+    return image_url
