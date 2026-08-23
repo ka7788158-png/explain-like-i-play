@@ -21,6 +21,9 @@
 
 * Downloding as PDF option also available
 
+<img width="1353" height="457" alt="image" src="https://github.com/user-attachments/assets/b53a3d47-97d5-4ec7-9ddc-c24ba6d94de4" />
+* Can even ask a follow UP questions as well. 
+
 ---
 
 ## 📡 [ACCESS LIVE TRANSMISSION HERE]
