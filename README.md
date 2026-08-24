@@ -27,7 +27,7 @@
 ---
 
 ## 📡 [ACCESS LIVE TRANSMISSION HERE]
-**Link:** `[Insert Your Streamlit Cloud URL Here]`
+**Link:** ->  https://explain-like-i-play.streamlit.app/
 
 ## 🛠️ MISSION BRIEFING (Overview)
 **Explain it Like I Play** is a highly interactive, agentic AI application built to translate complex computer science and engineering topics into video game mechanics. 
