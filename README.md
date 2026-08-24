@@ -1,4 +1,10 @@
-# >_ EXPLAIN IT LIKE I PLAY
+# EXPLAIN IT LIKE I PLAY
+**PROJECT TRACK** 
+selected from Category F: Accessibility & Advanced Utilities
+Project - 29 -> The "Explain it Like I Play" Dictionary: Users select a favorite video game (like
+Minecraft or Valorant) and input a complex engineering topic. The AI explains the concept
+entirely through the mechanics of that specific game.
+
 **STATUS:** `ONLINE` || **THREAT LEVEL:** `HIGH` || **FRAMEWORK:** `LANGGRAPH + GEMINI`
 
 > "Complex engineering concepts, mapped directly into the video games you already understand."
