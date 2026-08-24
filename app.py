@@ -76,10 +76,11 @@ if submit_btn:
         # # Generate the audio file immediately after the graph completes
         # st.session_state.audio_bytes = create_audio_briefing(st.session_state.graph_state["narrative_explanation"])
 
-        with st.status("Initializing Mission Protocol ... ", expand = True) as status: 
+        with st.status("Initializing Mission Protocol...", expanded=True) as status:
             status.write("📡 Uplink established. Transmitting parameters to AI engine...")
 
-            final_state = None
+            # 1. Create a copy of the initial state to act as our running memory
+            current_state = initial_state.copy()
 
             # stream the graph execution Node by Node
             for output in app_engine.stream(initial_state):
@@ -87,10 +88,10 @@ if submit_btn:
                     # Dynamically print which AI node is currently running
                     formatted_node = node_name.replace("_", " ").title()
                     status.write(f"⚙️ Executing module: {formatted_node}...")
-                    final_state = state_update
+                    current_state.update(state_update)
 
             # Save the final compiled state to memory
-            st.session_state.graph_state = final_state
+            st.session_state.graph_state = current_state
             
             status.write("🔊 Synthesizing Commander's audio transmission...")
             st.session_state.audio_bytes = create_audio_briefing(st.session_state.graph_state["narrative_explanation"])
