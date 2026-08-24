@@ -7,3 +7,6 @@ pandas
 python-dotenv
 fpdf2
 gTTS
+langchain-core
+requests
+urllib3
